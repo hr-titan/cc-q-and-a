@@ -1,21 +1,22 @@
-var controller = require('./controllers');
-var router = require('express').Router();
+const express = require('express');
+const controllers = require('./controllers');
+const router = express.Router();
 
 
-router.get('/qa/questions', controller.questions.get);
+router.get('/qa/questions', controllers.getQuestions);
 
-router.post('/qa/questions', controller.questions.post);
+router.post('/qa/questions', controllers.postQuestion);
 
-router.put('/qa/questions/:question_id/helpful', controller.questions.putHelpfulQuestions);
+router.get('/qa/questions/:question_id/answers', controllers.getAnswers);
 
-router.put('/qa/questions/:question_id/report', controller.questions.putReportQuestions);
+router.post('/qa/questions/:question_id/answers', controllers.postAnswers);
 
-router.get('/qa/questions/:question_id/answers', controller.answers.get);
+router.put('/qa/questions/:question_id/helpful/', controllers.putHelpfulQuestions);
 
-router.post('/qa/questions/:question_id/answers', controller.answers.post);
+router.put('/qa/questions/:question_id/report', controllers.putReportQuestions);
 
-router.put('/qa/answers/:answer_id/helpful', controller.answers.putHelpfulAnswers);
+router.put('/qa/answers/:answer_id/helpful', controllers.putHelpfulAnswers);
 
-router.put('/qa/answers/:answer_id/report', controller.answers.putReportAnswers);
+router.put('/qa/answers/:answer_id/report', controllers.putReportAnswers);
 
 module.exports = router;
