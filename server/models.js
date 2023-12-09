@@ -4,23 +4,73 @@ module.exports = {
   getQuestions: async (productId, page = 1, count = 5) => {
     const offset = (page - 1) * count;
 
-    const questions = await db.any('SELECT * FROM questions WHERE product_id = $1 LIMIT $2 OFFSET $3', [productId, count, offset]);
+    const query = `
+        SELECT
+          q.question_id,
+          q.question_body,
+          q.question_date,
+          q.asker_name,
+          q.asker_email,
+          q.question_helpfulness,
+          q.reported,
+          JSON_AGG(
+            JSON_BUILD_OBJECT(
+              'answer_id', a.answer_id,
+              'body', a.body,
+              'date', a.date,
+              'answerer_name', a.answerer_name,
+              'answerer_email', a.answerer_email,
+              'helpfulness', a.helpfulness,
+              'reported', a.reported,
+              'photos', (
+                SELECT JSON_AGG(
+                  JSON_BUILD_OBJECT('id', ap.photo_id, 'url', ap.url)
+                )
+                FROM answers_photos ap
+                WHERE ap.answer_id = a.answer_id
+              )
+            )
+          ) AS answers
+        FROM questions q
+        LEFT JOIN answers a ON q.question_id = a.question_id
+        WHERE q.product_id = $1
+        GROUP BY q.question_id
+        LIMIT $2 OFFSET $3
+      `;
 
-    for (const question of questions) {
-      const answers = await db.any('SELECT * FROM answers WHERE question_id = $1', [question.question_id]);
-      question.answers = {};
+    const questions = await db.any(query, [productId, count, offset]);
 
-      for (const answer of answers) {
-        const photos = await db.any('SELECT * FROM answers_photos WHERE answer_id = $1', [answer.answer_id]);
-        answer.photos = photos;
-        question.answers[answer.answer_id] = answer;
-      }
-    }
     return {
       product_id: productId,
-      results: questions
+      page: page,
+      count: count,
+      results: questions.map(q => ({
+        ...q,
+        answers: q.answers.filter(a => a.answer_id !== null)
+      }))
     };
   },
+
+  // getQuestions: async (productId, page = 1, count = 5) => {
+  //   const offset = (page - 1) * count;
+
+  //   const questions = await db.any('SELECT * FROM questions WHERE product_id = $1 LIMIT $2 OFFSET $3', [productId, count, offset]);
+
+  //   for (const question of questions) {
+  //     const answers = await db.any('SELECT * FROM answers WHERE question_id = $1', [question.question_id]);
+  //     question.answers = {};
+
+  //     for (const answer of answers) {
+  //       const photos = await db.any('SELECT * FROM answers_photos WHERE answer_id = $1', [answer.answer_id]);
+  //       answer.photos = photos;
+  //       question.answers[answer.answer_id] = answer;
+  //     }
+  //   }
+  //   return {
+  //     product_id: productId,
+  //     results: questions
+  //   };
+  // },
 
   getAnswers: async (questionId, page = 1, count = 5) => {
     const offset = (page - 1) * count;
