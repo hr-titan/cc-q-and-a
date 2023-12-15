@@ -27,7 +27,7 @@ module.exports = {
 
   getRandomQuestions: async (req, res) => {
     try {
-      const productId = Math.floor(Math.random() * 3500000) + 1;
+      const productId = Math.floor(Math.random() * 1000000) + 1;
       const page = 1;
       const count = 100;
 
