@@ -28,9 +28,8 @@ module.exports = {
   getRandomQuestions: async (req, res) => {
     try {
       const productId = Math.floor(Math.random() * 3500000) + 1;
-      const page = Math.floor(Math.random() * 10) + 1;
-      const counts = [5, 10, 20, 30];
-      const count = counts[Math.floor(Math.random() * counts.length)];
+      const page = 1;
+      const count = 100;
 
       const cacheKey = `questions:${productId}:${page}:${count}`;
       const cachedQuestions = await redis.get(cacheKey);
