@@ -5,6 +5,8 @@ const router = express.Router();
 
 router.get('/qa/questions', controllers.getQuestions);
 
+router.get('/qa/questions/random', controllers.getRandomQuestions);
+
 router.post('/qa/questions', controllers.postQuestion);
 
 router.get('/qa/questions/:question_id/answers', controllers.getAnswers);
