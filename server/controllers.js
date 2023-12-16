@@ -1,6 +1,9 @@
 const Redis = require('ioredis');
 const models = require('./models');
-const redis = new Redis();
+const redis = new Redis({
+  host: 'redis',
+  port: 6379
+});
 
 module.exports = {
   getQuestions: async (req, res) => {
