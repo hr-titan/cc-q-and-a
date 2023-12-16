@@ -1,9 +1,5 @@
-const Redis = require('ioredis');
 const models = require('./models');
-const redis = new Redis({
-  host: 'redis',
-  port: 6379
-});
+
 
 module.exports = {
   getQuestions: async (req, res) => {
@@ -12,16 +8,8 @@ module.exports = {
       const page = parseInt(req.query.page) || 1;
       const count = parseInt(req.query.count) || 5;
 
-      const cacheKey = `questions:${productId}:${page}:${count}`;
-      const cachedQuestions = await redis.get(cacheKey);
-
-      if (cachedQuestions) {
-        res.json(JSON.parse(cachedQuestions));
-      } else {
-        const questions = await models.getQuestions(productId, page, count);
-        await redis.set(cacheKey, JSON.stringify(questions), 'EX', 86400);
-        res.json(questions);
-      }
+      const questions = await models.getQuestions(productId, page, count);
+      res.json(questions);
     } catch (error) {
       console.error(error);
       res.status(500).send('Internal Server Error');
@@ -34,16 +22,8 @@ module.exports = {
       const page = 1;
       const count = 100;
 
-      const cacheKey = `questions:${productId}:${page}:${count}`;
-      const cachedQuestions = await redis.get(cacheKey);
-
-      if (cachedQuestions) {
-        res.json(JSON.parse(cachedQuestions));
-      } else {
-        const questions = await models.getQuestions(productId, page, count);
-        await redis.set(cacheKey, JSON.stringify(questions), 'EX', 86400);
-        res.json(questions);
-      }
+      const questions = await models.getQuestions(productId, page, count);
+      res.json(questions);
     } catch (error) {
       console.error(error);
       res.status(500).send('Internal Server Error');
